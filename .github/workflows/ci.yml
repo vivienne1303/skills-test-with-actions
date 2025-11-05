@@ -10,22 +10,27 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Install remark
         run: |
-          npm install remark-cli remark-preset-lint-consistent
+          npm install remark-cli remark-preset-lint-consistent vfile-reporter-json
 
       - name: Auto-fix Markdown emphasis
         run: |
           npx remark . --use remark-preset-lint-consistent --output
 
-      - name: Run markdown lint (warnings will not fail the job)
+      - name: Run markdown lint and generate report
         run: |
-          npx remark . --use remark-preset-lint-consistent
+          npx remark . --use remark-preset-lint-consistent --report vfile-reporter-json 2> remark-lint-report.json
+
+      - name: Upload lint report
+        uses: actions/upload-artifact@v4
+        with:
+          name: remark-lint-report
+          path: remark-lint-report.json
 
       - name: Run a multi-line script
         run: |
